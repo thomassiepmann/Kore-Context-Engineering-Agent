@@ -1,0 +1,17 @@
+[Unit]
+Description=KORE Context Engineering Agent
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/var/www/kore-agent
+EnvironmentFile=/var/www/kore-agent/.env
+ExecStart=/usr/bin/python3 -m uvicorn main:app --host 0.0.0.0 --port 9000
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
