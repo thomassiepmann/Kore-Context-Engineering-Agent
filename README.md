@@ -30,3 +30,4 @@ API Docs: http://localhost:9000/docs
 ```bash
 bash deploy.sh
 ```
+# Auto-deploy test
