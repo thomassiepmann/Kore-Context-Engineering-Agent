@@ -1,0 +1,33 @@
+name: Deploy to Hetzner
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.HETZNER_SSH_KEY }}" > ~/.ssh/github_actions
+          chmod 600 ~/.ssh/github_actions
+          ssh-keyscan -H 89.167.83.224 >> ~/.ssh/known_hosts
+
+      - name: Git Pull & Restart Services
+        run: |
+          ssh -i ~/.ssh/github_actions root@89.167.83.224 << 'EOF'
+            cd /root/Kore-Context-Engineering-Agent
+            git pull
+            systemctl restart kore
+            systemctl restart kore-telegram
+          EOF
