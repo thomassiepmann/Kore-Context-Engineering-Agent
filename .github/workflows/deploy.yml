@@ -25,8 +25,8 @@ jobs:
 
       - name: Git Pull & Restart Services
         run: |
-          ssh -i ~/.ssh/github_actions root@89.167.83.224 << 'EOF'
-            cd /root/Kore-Context-Engineering-Agent
+          ssh -o StrictHostKeyChecking=no -o IdentitiesOnly=yes -i ~/.ssh/github_actions root@89.167.83.224 << 'EOF'
+            cd /var/www/kore-agent
             git pull
             systemctl restart kore
             systemctl restart kore-telegram
