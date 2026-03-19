@@ -15,12 +15,10 @@ jobs:
         with:
           host: 89.167.83.224
           username: root
-          password: ${{ secrets.HETZNER_PASSWORD }}
+          key: ${{ secrets.HETZNER_SSH_KEY }}
           script: |
             cd /var/www/kore-agent
-            git pull origin main
+            git pull https://thomassiepmann:${{ secrets.GH_TOKEN }}@github.com/thomassiepmann/Kore-Context-Engineering-Agent.git main
             systemctl restart kore
             systemctl restart kore-telegram
-            curl -s -X POST "https://api.telegram.org/bot8540573483:AAHnPkPT0a4DE4NgtmUXmDuatZVL7isCPJ4/sendMessage" \
-              -d chat_id=1087337645 \
-              -d text="✅ KORE deployed!"
+            curl -s -X POST "https://api.telegram.org/bot8540573483:AAHnPkPT0a4DE4NgtmUXmDuatZVL7isCPJ4/sendMessage" -d chat_id=1087337645 -d text="✅ KORE auto-deployed!"
