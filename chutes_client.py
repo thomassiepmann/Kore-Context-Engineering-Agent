@@ -4,7 +4,7 @@ import os
 CHUTES_BASE_URL = "https://llm.chutes.ai/v1"
 # Qwen3-235B-A22B: 262k Kontext, top Instruction-Following für Context Engineering Agenten
 # Fallback: "deepseek-ai/DeepSeek-R1" für Reasoning-intensive Tasks
-CHUTES_MODEL = "Qwen/Qwen3-235B-A22B"
+CHUTES_MODEL = "deepseek-ai/DeepSeek-V3-0324"
 CHUTES_API_KEY = os.getenv("CHUTES_API_KEY", "")
 
 def chat(messages: list, system: str = "", temperature: float = 0.3, max_tokens: int = 1500) -> str:

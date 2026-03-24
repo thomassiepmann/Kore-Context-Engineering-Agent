@@ -28,3 +28,8 @@ class FeedbackRequest(BaseModel):
 class ContextUpdate(BaseModel):
     field: str
     value: str
+
+class ChatRequest(BaseModel):
+    project_name: str
+    user_input: str
+    user_role: str = 'thomas'

@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from datetime import datetime
-from models import ProjectContext, PromptRequest, FeedbackRequest, ContextUpdate
+from models import ProjectContext, PromptRequest, FeedbackRequest, ContextUpdate, ChatRequest
 from context_store import init_db, get_context, upsert_context, save_feedback, get_all_projects
 from prompt_engine import build_optimized_prompt, get_prompt_quality_stats
 from chutes_client import generate_questions
@@ -103,3 +103,53 @@ td{{padding:6px 8px;border-bottom:1px solid #eee}}.badge{{background:#e8f5e9;col
 <a href="/learnings" style="color:#aaa">Learnings</a> ·
 <a href="/docs" style="color:#aaa">API Docs</a></div>
 </body></html>"""
+
+from fastapi.responses import HTMLResponse
+import os
+
+
+from pydantic import BaseModel as BM
+class ChatRequest(BM):
+    project_name: str
+    user_input: str
+    user_role: str = 'thomas'
+    history: list = []
+
+@app.post('/chat')
+def chat_endpoint(req: ChatRequest):
+    from chutes_client import chat as chutes_chat
+    result = build_optimized_prompt(req.project_name, req.user_input, req.user_role)
+    messages = []
+    for msg in req.history[-6:]:
+        messages.append({'role': msg.get('role','user'), 'content': msg.get('content','')})
+    messages.append({'role': 'user', 'content': result['optimized_prompt']})
+    system = 'Du bist ein hilfreicher KI-Assistent fuer Paradieschen. Antworte praezise auf Deutsch.'
+    answer = chutes_chat(messages, system=system, temperature=0.3, max_tokens=1500)
+    return {'answer': answer, 'prompt_id': result['prompt_id'], 'context_used': result['context_used'], 'model': 'Qwen3-235B'}
+
+@app.get("/kore-tab", response_class=HTMLResponse)
+def kore_tab():
+    tab_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "kore-tab.html")
+    if os.path.exists(tab_path):
+        with open(tab_path, "r", encoding="utf-8") as f:
+            return f.read()
+    return HTMLResponse("<h2>kore-tab.html nicht gefunden</h2>", status_code=404)
+
+from pydantic import BaseModel as BM
+class ChatRequest(BM):
+    project_name: str
+    user_input: str
+    user_role: str = 'thomas'
+    history: list = []
+
+@app.post('/chat')
+def chat_via_chutes(req: ChatRequest):
+    from chutes_client import chat as chutes_chat
+    result = build_optimized_prompt(req.project_name, req.user_input, req.user_role)
+    messages = []
+    for msg in req.history[-6:]:
+        messages.append({'role': msg.get('role','user'), 'content': msg.get('content','')})
+    messages.append({'role': 'user', 'content': result['optimized_prompt']})
+    system = 'Du bist ein hilfreicher KI-Assistent fuer Paradieschen. Antworte auf Deutsch.'
+    answer = chutes_chat(messages, system=system, temperature=0.3, max_tokens=1500)
+    return {'answer': answer, 'prompt_id': result['prompt_id'], 'context_used': result['context_used'], 'model': 'Qwen3-235B'}
